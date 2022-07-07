@@ -70,9 +70,9 @@ def init_centroids(boxes, n_anchors):
   centroids = []
   boxes_num = len(boxes)
 
-  centroid_index = int(np.random.choice(boxes_num, 1)[0])
+  centroid_index = int(np.random.choice(boxes_num, 1)[0]) # 随机选取一个index
   centroids.append(boxes[centroid_index])
-  print(centroids[0].w, centroids[0].h)
+  print(centroids[0].w, centroids[0].h) # 在416*416尺寸上的w和h
 
   for centroid_index in range(0, n_anchors - 1):
     sum_distance = 0
@@ -82,18 +82,18 @@ def init_centroids(boxes, n_anchors):
 
     for box in boxes:
       min_distance = 1
-      for centroid_i, centroid in enumerate(centroids):
-        distance = (1 - iou(box, centroid))
+      for centroid_i, centroid in enumerate(centroids): # centroid是box对象
+        distance = (1 - iou(box, centroid)) # 这里是每一个GT的bbox和一开始选取的GTbbox进行iOU的计算
         if distance < min_distance:
           min_distance = distance
       sum_distance += min_distance
       distance_list.append(min_distance)
 
-    distance_thresh = sum_distance * np.random.random()
+    distance_thresh = sum_distance * np.random.random() # 这里选取一个0~1的随机值。
 
     for i in range(0, boxes_num):
       cur_sum += distance_list[i]
-      if cur_sum > distance_thresh:
+      if cur_sum > distance_thresh: # 这里进行累加, 如果距离大于distance threshold, 那么就添加对应的centroids
         centroids.append(boxes[i])
         print(boxes[i].w, boxes[i].h)
         break
