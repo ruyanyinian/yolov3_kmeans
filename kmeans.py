@@ -108,19 +108,20 @@ def do_kmeans(n_anchors, boxes, centroids):
   #     print('box: ', box.x, box.y, box.w, box.h)
   # exit()
   for i in range(n_anchors):
-    groups.append([])
-    new_centroids.append(Box(0, 0, 0, 0))
+    groups.append([])  # 生成9个空的list
+    new_centroids.append(Box(0, 0, 0, 0))  # 生成9个空的box
 
-  for box in boxes:
+  for box in boxes: # 遍历40000+的bbox
     min_distance = 1
     group_index = 0
-    for centroid_index, centroid in enumerate(centroids):
+    for centroid_index, centroid in enumerate(centroids):  # 遍历9个centroids的bbox
       distance = (1 - iou(box, centroid))
       if distance < min_distance:
         min_distance = distance
         group_index = centroid_index
+
     groups[group_index].append(box)
-    loss += min_distance
+    loss += min_distance  # 这里的loss就是min_distance
     new_centroids[group_index].w += box.w
     new_centroids[group_index].h += box.h
 
@@ -144,7 +145,8 @@ def anchor_box_kmeans(total_gt_boxes, n_anchors, loss_convergence, iters, plus=T
   boxes = total_gt_boxes # list of boxes, length = 40058, 这些坐标是映射到(416,416上面)
   centroids = []
   if plus:
-    centroids = init_centroids(boxes, n_anchors) # list of boxes, length = 40058, n_anchors=9
+    # list of boxes, length = 40058, n_anchors=9, 初始化9个centroids, 一个centroid是一个bbox对象
+    centroids = init_centroids(boxes, n_anchors)
   else:
     total_indexs = range(len(boxes))
     sample_indexs = random.sample(total_indexs, n_anchors)
@@ -152,7 +154,7 @@ def anchor_box_kmeans(total_gt_boxes, n_anchors, loss_convergence, iters, plus=T
       centroids.append(boxes[i])
 
   # iterate k-means
-  centroids, groups, old_loss = do_kmeans(n_anchors, boxes, centroids)
+  centroids, groups, old_loss = do_kmeans(n_anchors, boxes, centroids) # n_anchors=9, centroids其实是list of 9个boxes
   iterations = 1
   while (True):
     centroids, groups, loss = do_kmeans(n_anchors, boxes, centroids)
