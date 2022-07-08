@@ -32,7 +32,7 @@ def parse_args():
 args = parse_args()
 
 
-class Box():
+class Box(object):
   def __init__(self, x, y, w, h):
     self.x = x
     self.y = y
@@ -114,11 +114,11 @@ def do_kmeans(n_anchors, boxes, centroids):
   for box in boxes: # 遍历40000+的bbox
     min_distance = 1
     group_index = 0
-    for centroid_index, centroid in enumerate(centroids):  # 遍历9个centroids的bbox
+    for centroid_index, centroid in enumerate(centroids):  # 遍历9个centroids的bbox, 9个centroids分别和所有的box做距离计算
       distance = (1 - iou(box, centroid))
       if distance < min_distance:
         min_distance = distance
-        group_index = centroid_index
+        group_index = centroid_index  # 记录centroids
 
     groups[group_index].append(box)
     loss += min_distance  # 这里的loss就是min_distance
@@ -156,7 +156,7 @@ def anchor_box_kmeans(total_gt_boxes, n_anchors, loss_convergence, iters, plus=T
   # iterate k-means
   centroids, groups, old_loss = do_kmeans(n_anchors, boxes, centroids) # n_anchors=9, centroids其实是list of 9个boxes
   iterations = 1
-  while (True):
+  while True:
     centroids, groups, loss = do_kmeans(n_anchors, boxes, centroids)
     iterations += 1
     print("Loss = %f" % loss)
@@ -175,7 +175,6 @@ def anchor_box_kmeans(total_gt_boxes, n_anchors, loss_convergence, iters, plus=T
     else:
       print("w, h: ", round(centroid.w, 2), round(centroid.h, 2),
             "area: ", round(centroid.w, 2) * round(centroid.h, 2))
-
   return centroids
 
 
